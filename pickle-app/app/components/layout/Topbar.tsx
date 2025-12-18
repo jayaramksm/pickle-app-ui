@@ -4,14 +4,17 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Box, Text, Avatar, TextInput, Drop } from "grommet";
 import { Search, Notification, User, Logout } from "grommet-icons";
+import { useDispatch } from "react-redux";
+import { logout } from "@/app/store/slices/authSlice";
 
 export default function Topbar() {
   const router = useRouter();
+  const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const [target, setTarget] = useState<any>();
 
   const handleLogout = () => {
-    localStorage.removeItem("auth_token");
+    dispatch(logout())
     router.push("/pages/login");
   };
 

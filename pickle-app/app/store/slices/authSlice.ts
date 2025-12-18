@@ -1,75 +1,75 @@
+import { loginAPI, signupAPI } from "@/app/services/auth.service";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-// Dummy API delay
-const apiDelay = (res:any) =>
-  new Promise((resolve) => setTimeout(() => resolve(res), 1200));
+
 
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
-  async ({ email, password }:any, { rejectWithValue }) => {
-    if (email && password ) {
-    // if (email === "admin@test.com" && password === "admin123") {
-      return apiDelay({
-        role: "admin",
-        email,
-        name: "Admin User",
-        token: "dummy-admin-token",
-      });
-    }
+  async (
+    { email, password }: { email: string; password: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res: any = await loginAPI({ email, password });
 
-    if (email === "user@test.com" && password === "user123") {
-      return apiDelay({
-        role: "user",
-        email,
-        name: "Normal User",
-        token: "dummy-user-token",
-      });
-    }
+      // store token
+      localStorage.setItem("token", res.token);
 
-    return rejectWithValue("Invalid email or password");
+      return res;
+    } catch (error: any) {
+      return rejectWithValue(
+        error?.response?.data?.message || "Login failed"
+      );
+    }
   }
 );
 
 export const signupUser = createAsyncThunk(
   "auth/signupUser",
-  async ({ name, email, password }:any, { rejectWithValue }) => {
-    if (!email.includes("@")) return rejectWithValue("Invalid email");
-    if (password.length < 6)
-      return rejectWithValue("Password must be 6+ characters");
+  async (
+    { name, email, password , role}: { name: string; email: string; password: string, role: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res: any = await signupAPI({ name, email, password , role});
 
-    return apiDelay({
-      name,
-      email,
-      role: "user",
-      token: "dummy-signup-token",
-    });
+      localStorage.setItem("token", res.token);
+
+      return res;
+    } catch (error: any) {
+      return rejectWithValue(
+        error?.response?.data?.message || "Signup failed"
+      );
+    }
   }
 );
+
 
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    user: null,
+    user: null as any,
     loading: false,
-    error: null,
+    error: null as string | null,
   },
   reducers: {
     logout: (state) => {
       state.user = null;
+      localStorage.removeItem("token");
     },
   },
   extraReducers: (builder) => {
     builder
       // LOGIN
-      .addCase(loginUser.pending, (state:any) => {
+      .addCase(loginUser.pending, (state: any) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(loginUser.fulfilled, (state:any, action) => {
+      .addCase(loginUser.fulfilled, (state: any, action) => {
         state.loading = false;
         state.user = action.payload;
       })
-      .addCase(loginUser.rejected, (state:any, action) => {
+      .addCase(loginUser.rejected, (state: any, action) => {
         state.loading = false;
         state.error = action.payload;
       })
@@ -79,11 +79,11 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(signupUser.fulfilled, (state:any, action) => {
+      .addCase(signupUser.fulfilled, (state: any, action) => {
         state.loading = false;
         state.user = action.payload;
       })
-      .addCase(signupUser.rejected, (state:any, action) => {
+      .addCase(signupUser.rejected, (state: any, action) => {
         state.loading = false;
         state.error = action.payload;
       });

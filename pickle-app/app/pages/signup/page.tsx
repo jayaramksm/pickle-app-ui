@@ -12,11 +12,12 @@ export default function SignupPage() {
   const dispatch = useDispatch<any>();
   const router = useRouter();
 
-  const { user, loading, error } = useSelector((state:any) => state.auth);
+  const { user, loading, error } = useSelector((state: any) => state.auth);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("");
 
   // Redirect after signup
   useEffect(() => {
@@ -26,16 +27,16 @@ export default function SignupPage() {
   }, [user, router]);
 
   const handleSignup = () => {
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !role) {
       alert("Please fill all fields");
       return;
     }
-    dispatch(signupUser({ name, email, password }));
+    dispatch(signupUser({ name, email, password , role}));
   };
 
   return (
     <Box direction="row" height="100vh" background="light-2">
-      
+
       {/* LEFT SIDE */}
       <Box width="50%" pad="large" justify="center">
         <Box width="60%">
@@ -48,6 +49,7 @@ export default function SignupPage() {
           )}
 
           <InputField label="Full Name" value={name} setValue={setName} />
+          <InputField label="Role" value={role} setValue={setRole} />
           <InputField label="Email" value={email} setValue={setEmail} />
           <InputField
             label="Password"
